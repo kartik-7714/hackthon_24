@@ -1,0 +1,13 @@
+CREATE DATABASE UserInputDB;
+GO
+
+USE UserInputDB;
+GO
+
+CREATE TABLE UserInput (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50),
+    Email NVARCHAR(50),
+    Comments NVARCHAR(255)
+);
+GO

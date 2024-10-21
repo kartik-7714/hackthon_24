@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #221c1c;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #560bee;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(216, 216, 232, 0.1);
+        }
+
+        h1, h2 {
+            color: #fff7f7;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #151313;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+
+        button {
+            padding: 10px;
+            background: #0f0160;
+            color: rgb(229, 224, 247);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #200a8c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #efe9e9;
+            text-align: left;
+        }
+
+        th {
+            background: #d0d6e3;
+        }
+
+        button.delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button.edit-btn {
+            background-color: #008cba;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button.delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        button.edit-btn:hover {
+            background-color: #007b9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Inventory Management System</h1>
+
+        <div class="form-container">
+            <h2>Add Product</h2>
+            
+            <form id="product-form">
+                <input type="text" id="store-name" placeholder="Store Name" required>
+                <input type="text" id="product-name" placeholder="Product Name" required>
+                <input type="text" id="product-description" placeholder="Description" required>
+                <input type="number" id="product-price" placeholder="Price" required>
+                <input type="text" id="product-category" placeholder="Category" required>
+                <input type="number" id="product-stock" placeholder="Stock Quantity" required>
+                <button type="submit">Add Product</button>
+
+               
+                
+            </form><br>
+            <a href="/Home page.html"><button>Back To Home</button></a>
+        </div>
+
+        <h2>Product List</h2>
+        <table id="product-table">
+            <thead>
+                <tr>
+                    <th>Store Name</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Product rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Product management functionality
+        let products = [];
+
+        // Load products from localStorage if available
+        function loadFromLocalStorage() {
+            const storedProducts = localStorage.getItem('products');
+            if (storedProducts) {
+                products = JSON.parse(storedProducts);
+                displayProducts();
+            }
+        }
+
+        // Save products to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        // Event listener for form submission
+        document.getElementById('product-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const storeName = document.getElementById('store-name').value;
+            const name = document.getElementById('product-name').value;
+            const description = document.getElementById('product-description').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const category = document.getElementById('product-category').value;
+            const stock = parseInt(document.getElementById('product-stock').value);
+            
+            // Validation for negative values
+            if (price < 0 || stock < 0) {
+                alert('Price and Stock must be positive values');
+                return;
+            }
+            
+            const product = {
+                id: Date.now(), // Unique ID for each product
+                storeName,
+                name,
+                description,
+                price,
+                category,
+                stock
+            };
+            
+            products.push(product);
+            saveToLocalStorage();
+            displayProducts();
+            
+            // Reset form fields
+            document.getElementById('product-form').reset();
+        });
+
+        // Display products in the table
+        function displayProducts() {
+            const tableBody = document.getElementById('product-table').querySelector('tbody');
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            products.forEach((product, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${product.storeName}</td>
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>${product.category}</td>
+                    <td>${product.stock}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editProduct(${index})">Edit</button>
+                        <button class="delete-btn" onclick="deleteProduct(${index})">Delete</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Delete product function
+        function deleteProduct(index) {
+            products.splice(index, 1);
+            saveToLocalStorage();
+            displayProducts();
+        }
+
+        // Edit product function
+        function editProduct(index) {
+            const product = products[index];
+            
+            document.getElementById('store-name').value = product.storeName;
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-description').value = product.description;
+            document.getElementById('product-price').value = product.price;
+            document.getElementById('product-category').value = product.category;
+            document.getElementById('product-stock').value = product.stock;
+            
+            deleteProduct(index); // Delete the product to avoid duplication during editing
+        }
+
+        // Load products when the page is loaded
+        window.onload = loadFromLocalStorage;
+    </script>
+    
+    
+</body>
+</html>
